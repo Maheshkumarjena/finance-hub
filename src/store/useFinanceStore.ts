@@ -113,13 +113,6 @@ export const useFinanceStore = create<FinanceState>()(
         role: state.role,
         darkMode: state.darkMode,
       }),
-      onRehydrate: (_state) => {
-        return (state) => {
-          if (state?.darkMode) {
-            document.documentElement.classList.add('dark');
-          }
-        };
-      },
     }
   )
 );
