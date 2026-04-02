@@ -17,6 +17,7 @@ interface CategoryChartProps {
 export function CategoryChart({ data }: CategoryChartProps) {
   const setFilters = useFinanceStore((s) => s.setFilters);
   const chartData = Object.entries(data).map(([name, value]) => ({ name, value: Math.round(value) }));
+  const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
   if (chartData.length === 0) {
     return <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">No expenses yet</div>;
