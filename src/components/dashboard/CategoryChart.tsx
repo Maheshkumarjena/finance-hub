@@ -42,19 +42,28 @@ export function CategoryChart({ data }: CategoryChartProps) {
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              fontSize: '13px',
-              padding: '6px 10px',
-            }}
-            formatter={(value: number, name: string, props: any) => {
-              const color = props?.payload?.fill || props?.color || 'currentColor';
-              return [
-                <span style={{ color }}>${value}</span>,
-                <span style={{ color }}>{name}</span>,
-              ];
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              const entry = payload[0];
+              const name = entry.name as string;
+              const value = entry.value as number;
+              const color = entry.payload?.fill || 'currentColor';
+              const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+              return (
+                <div
+                  style={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    padding: '6px 10px',
+                  }}
+                >
+                  <div style={{ color, fontWeight: 600 }}>{name}</div>
+                  <div className="text-muted-foreground text-xs">Type: Expense</div>
+                  <div style={{ color }}>${value} ({pct}%)</div>
+                </div>
+              );
             }}
           />
         </PieChart>
