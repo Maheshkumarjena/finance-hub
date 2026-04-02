@@ -60,7 +60,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
                   }}
                 >
                   <div style={{ color, fontWeight: 600 }}>{name}</div>
-                  <div className="text-muted-foreground text-xs">Type: Expense</div>
+                  
                   <div style={{ color }}>${value} ({pct}%)</div>
                 </div>
               );
