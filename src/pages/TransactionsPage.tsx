@@ -189,7 +189,7 @@ export default function TransactionsPage() {
                               variant="ghost"
                               size="sm"
                               className="h-7 text-xs text-destructive"
-                              onClick={(e) => { e.stopPropagation(); deleteTransaction(t.id); }}
+                              onClick={(e) => { e.stopPropagation(); deleteTransaction(t.id); toast.success('Transaction deleted', { description: `Category: ${t.category}` }); }}
                             >
                               Delete
                             </Button>
