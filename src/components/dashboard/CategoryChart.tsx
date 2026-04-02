@@ -46,8 +46,15 @@ export function CategoryChart({ data }: CategoryChartProps) {
               border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
               fontSize: '13px',
+              padding: '6px 10px',
             }}
-            formatter={(value: number, name: string) => [`$${value}`, name]}
+            formatter={(value: number, name: string, props: any) => {
+              const color = props?.payload?.fill || props?.color || 'currentColor';
+              return [
+                <span style={{ color }}>${value}</span>,
+                <span style={{ color }}>{name}</span>,
+              ];
+            }}
           />
         </PieChart>
       </ResponsiveContainer>
