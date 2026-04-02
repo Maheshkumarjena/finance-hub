@@ -149,12 +149,12 @@ export default function TransactionsPage() {
                 <thead>
                   <tr className="border-b bg-muted/50">
                     <th className="text-left p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('date')}>
-                      <span className="flex items-center gap-1">Date <ArrowUpDown className="h-3 w-3" /></span>
+                      <span className="flex items-center gap-1">Date {filters.sortBy === 'date' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
                     </th>
                     <th className="text-left p-3 font-medium text-muted-foreground">Description</th>
                     <th className="text-left p-3 font-medium text-muted-foreground">Category</th>
                     <th className="text-right p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('amount')}>
-                      <span className="flex items-center justify-end gap-1">Amount <ArrowUpDown className="h-3 w-3" /></span>
+                      <span className="flex items-center justify-end gap-1">Amount {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
                     </th>
                     {isAdmin && <th className="p-3 w-20" />}
                   </tr>
