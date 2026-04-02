@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -67,8 +68,10 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
 
     if (isEditing) {
       updateTransaction(transaction.id, data);
+      toast.success(`Transaction updated`, { description: `Category: ${data.category}` });
     } else {
       addTransaction(data);
+      toast.success(`Transaction added`, { description: `Category: ${data.category}` });
     }
     onClose();
   };
