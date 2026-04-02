@@ -47,7 +47,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
               borderRadius: '8px',
               fontSize: '13px',
             }}
-            formatter={(value: number) => [`$${value}`, '']}
+            formatter={(value: number, name: string) => [`$${value}`, name]}
           />
         </PieChart>
       </ResponsiveContainer>
