@@ -19,22 +19,32 @@ export function CategoryChart({ data }: CategoryChartProps) {
   const chartData = Object.entries(data).map(([name, value]) => ({ name, value: Math.round(value) }));
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
+  const isMobile = window.innerWidth < 640;
+  const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+  const isDesktop = window.innerWidth >= 1024;
+
+  const tooltipFont = isMobile ? 11 : isTablet ? 12 : 13;
+  const legendTextSize = isMobile ? 'text-xs' : isTablet ? 'text-sm' : 'text-base';
+  const height = isMobile ? 180 : 220;
+  const innerRadius = isMobile ? 45 : 55;
+  const outerRadius = isMobile ? 70 : 85;
+
   if (chartData.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">No expenses yet</div>;
+    return <div className="h-40 sm:h-64 flex items-center justify-center text-muted-foreground text-xs sm:text-sm">No expenses yet</div>;
   }
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={220}>
+      <ResponsiveContainer width="100%" height={height}>
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
             cy="50%"
-            innerRadius={55}
-            outerRadius={85}
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
             dataKey="value"
-            onClick={(entry) => setFilters({ category: entry.name, type: 'expense' })}
+            onClick={(entry) => setFilters({ categories: [entry.name], type: 'expense' })}
             className="cursor-pointer"
           >
             {chartData.map((_, index) => (
@@ -55,7 +65,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
-                    fontSize: '13px',
+                    fontSize: `${tooltipFont}px`,
                     padding: '6px 10px',
                   }}
                 >
@@ -72,8 +82,8 @@ export function CategoryChart({ data }: CategoryChartProps) {
         {chartData.map((item, i) => (
           <button
             key={item.name}
-            onClick={() => setFilters({ category: item.name, type: 'expense' })}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setFilters({ categories: [item.name], type: 'expense' })}
+            className={`flex items-center gap-1.5 ${legendTextSize} text-muted-foreground hover:text-foreground transition-colors`}
           >
             <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
             {item.name}

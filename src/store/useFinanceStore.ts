@@ -1,6 +1,29 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Initialize dark mode from localStorage or system preference
+const initializeDarkMode = () => {
+  const stored = typeof window !== 'undefined' 
+    ? localStorage.getItem('finance-dashboard')
+    : null;
+  
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed.state?.darkMode ?? false;
+    } catch {
+      return false;
+    }
+  }
+  
+  // Check system preference
+  if (typeof window !== 'undefined') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  
+  return false;
+};
+
 export interface Transaction {
   id: string;
   date: string;
@@ -12,7 +35,7 @@ export interface Transaction {
 
 interface Filters {
   searchTerm: string;
-  category: string;
+  categories: string[];
   type: '' | 'income' | 'expense';
   sortBy: 'date' | 'amount';
   sortOrder: 'asc' | 'desc';
@@ -66,7 +89,7 @@ function generateMockData(): Transaction[] {
 
 const defaultFilters: Filters = {
   searchTerm: '',
-  category: '',
+  categories: [],
   type: '',
   sortBy: 'date',
   sortOrder: 'desc',
@@ -78,7 +101,7 @@ export const useFinanceStore = create<FinanceState>()(
       transactions: generateMockData(),
       role: 'admin',
       filters: { ...defaultFilters },
-      darkMode: false,
+      darkMode: initializeDarkMode(),
       setRole: (role) => set({ role }),
       setFilters: (f) => set((s) => ({ filters: { ...s.filters, ...f } })),
       resetFilters: () => set({ filters: { ...defaultFilters } }),
@@ -131,8 +154,8 @@ export const useFilteredTransactions = () => {
         t.amount.toString().includes(term)
     );
   }
-  if (filters.category) {
-    result = result.filter((t) => t.category === filters.category);
+  if (filters.categories.length > 0) {
+    result = result.filter((t) => filters.categories.includes(t.category));
   }
   if (filters.type) {
     result = result.filter((t) => t.type === filters.type);

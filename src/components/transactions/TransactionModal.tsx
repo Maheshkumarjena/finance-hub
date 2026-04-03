@@ -78,23 +78,24 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{isEditing ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="space-y-3 mt-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <div>
-              <Label>Date</Label>
+              <Label className="text-xs sm:text-sm">Date</Label>
               <Input
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 required
+                className="text-xs sm:text-sm h-8 sm:h-9"
               />
             </div>
             <div>
-              <Label>Amount</Label>
+              <Label className="text-xs sm:text-sm">Amount</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -102,25 +103,27 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 required
+                className="text-xs sm:text-sm h-8 sm:h-9"
               />
             </div>
           </div>
 
           <div>
-            <Label>Description</Label>
+            <Label className="text-xs sm:text-sm">Description</Label>
             <Input
               placeholder="Enter description"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               required
+              className="text-xs sm:text-sm h-8 sm:h-9"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <div>
-              <Label>Category</Label>
+              <Label className="text-xs sm:text-sm">Category</Label>
               <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 sm:h-9 text-xs sm:text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {CATEGORIES_LIST.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -129,9 +132,9 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
               </Select>
             </div>
             <div>
-              <Label>Type</Label>
+              <Label className="text-xs sm:text-sm">Type</Label>
               <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as 'income' | 'expense' })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 sm:h-9 text-xs sm:text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="income">Income</SelectItem>
                   <SelectItem value="expense">Expense</SelectItem>
@@ -141,8 +144,8 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit">{isEditing ? 'Save Changes' : 'Add Transaction'}</Button>
+            <Button type="button" variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={onClose}>Cancel</Button>
+            <Button type="submit" size="sm" className="text-xs sm:text-sm h-8 sm:h-9">{isEditing ? 'Save Changes' : 'Add Transaction'}</Button>
           </div>
         </form>
       </DialogContent>
