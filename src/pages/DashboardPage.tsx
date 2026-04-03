@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDerivedStats, useFinanceStore } from '@/store/useFinanceStore';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useDerivedStats, useFinanceStore, useBudgetWithSpending } from '@/store/useFinanceStore';
 import { BalanceChart } from '@/components/dashboard/BalanceChart';
 import { CategoryChart } from '@/components/dashboard/CategoryChart';
+import { useNavigate } from 'react-router-dom';
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
@@ -12,6 +15,10 @@ function formatCurrency(n: number) {
 export default function DashboardPage() {
   const { totalBalance, totalIncome, totalExpense, categoryBreakdown, monthlyArray } = useDerivedStats();
   const setFilters = useFinanceStore((s) => s.setFilters);
+  const budgetsWithSpending = useBudgetWithSpending();
+  const navigate = useNavigate();
+
+  const budgetAlerts = budgetsWithSpending.filter(b => b.status === 'warning' || b.status === 'exceeded');
 
   const cards = useMemo(() => [
     {
@@ -83,6 +90,37 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Budget Summary */}
+      {budgetsWithSpending.length > 0 && (
+        <Card>
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">Budget Overview</h3>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate('/budgets')}>
+                Manage Budgets
+              </Button>
+            </div>
+            {budgetAlerts.length > 0 ? (
+              <div className="space-y-2">
+                {budgetAlerts.slice(0, 3).map((budget) => (
+                  <div key={budget.id} className="flex items-center justify-between p-2 rounded bg-muted/50">
+                    <span className="text-sm font-medium">{budget.category}</span>
+                    <Badge variant={budget.status === 'exceeded' ? 'destructive' : 'secondary'} className="text-xs">
+                      {budget.status === 'exceeded' ? 'Over budget' : 'Warning'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">All budgets on track ✓</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">

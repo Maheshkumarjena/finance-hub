@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Plus, ArrowUp, ArrowDown, ArrowUpDown, X, FileDown, ChevronLeft, ChevronRight, MoreVertical, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown, ArrowUpDown, X, FileDown, ChevronLeft, ChevronRight, MoreVertical, Trash2, ChevronDown, Receipt } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,6 +41,8 @@ import {
 } from '@/store/useFinanceStore';
 import { TransactionDrawer } from '@/components/transactions/TransactionDrawer';
 import { TransactionModal } from '@/components/transactions/TransactionModal';
+import { DateRangePicker } from '@/components/DateRangePicker';
+import { EmptyState } from '@/components/EmptyState';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -107,7 +109,7 @@ export default function TransactionsPage() {
   useMemo(() => {
     setCurrentPage(1);
     setSelectedIds(new Set());
-  }, [filters.categories, filters.type, filters.sortBy, filters.sortOrder]);
+  }, [filters.categories, filters.type, filters.dateFrom, filters.dateTo, filters.tags, filters.sortBy, filters.sortOrder]);
 
   // Sync pageInput with currentPage
   useEffect(() => {
@@ -126,6 +128,8 @@ export default function TransactionsPage() {
     let count = 0;
     if (filters.categories.length > 0) count++;
     if (filters.type) count++;
+    if (filters.dateFrom || filters.dateTo) count++;
+    if (filters.tags.length > 0) count++;
     return count;
   }, [filters]);
 
@@ -237,8 +241,52 @@ export default function TransactionsPage() {
           ))}
         </div>
 
+        <DateRangePicker
+          dateFrom={filters.dateFrom}
+          dateTo={filters.dateTo}
+          onDateFromChange={(date) => setFilters({ dateFrom: date })}
+          onDateToChange={(date) => setFilters({ dateTo: date })}
+          onClear={() => setFilters({ dateFrom: '', dateTo: '' })}
+        />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm">
+              Tags {filters.tags.length > 0 && <span className="ml-0 font-semibold">({filters.tags.length})</span>}
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48" align="start">
+            {useFinanceStore.getState().tags.map((tag) => (
+              <div key={tag} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={filters.tags.includes(tag)}
+                  onCheckedChange={() => {
+                    const newTags = filters.tags.includes(tag)
+                      ? filters.tags.filter(t => t !== tag)
+                      : [...filters.tags, tag];
+                    setFilters({ tags: newTags });
+                  }}
+                />
+                <label className="text-xs sm:text-sm cursor-pointer flex-1 capitalize">{tag}</label>
+              </div>
+            ))}
+            {filters.tags.length > 0 && (
+              <>
+                <div className="border-t my-1" />
+                <DropdownMenuItem
+                  onClick={() => setFilters({ tags: [] })}
+                  className="text-xs sm:text-sm"
+                >
+                  Clear Tags
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" className="h-8 sm:h-9 text-xs text-muted-foreground" onClick={() => setFilters({ categories: [], type: '' })}>
+          <Button variant="ghost" size="sm" className="h-8 sm:h-9 text-xs text-muted-foreground" onClick={() => setFilters({ categories: [], type: '', dateFrom: '', dateTo: '', tags: [] })}>
             <X className="h-3 w-3 mr-1" /> Clear filters
           </Button>
         )}
@@ -248,14 +296,15 @@ export default function TransactionsPage() {
       <Card>
         <CardContent className="p-0">
           {transactions.length === 0 ? (
-            <div className="py-12 sm:py-16 text-center">
-              <p className="text-muted-foreground text-sm mb-2">No transactions found</p>
-              {isAdmin && (
-                <Button variant="outline" size="sm" onClick={() => { setEditingTxn(null); setModalOpen(true); }} className="text-xs sm:text-sm">
-                  Add your first transaction
-                </Button>
-              )}
-            </div>
+            <EmptyState
+              icon={Receipt}
+              title="No transactions yet"
+              description={isAdmin ? "Get started by adding your first transaction to track your spending" : "No transactions to display. Switch to Admin mode to add one."}
+              action={isAdmin ? {
+                label: "Add Transaction",
+                onClick: () => { setEditingTxn(null); setModalOpen(true); }
+              } : undefined}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm table-auto">
@@ -277,6 +326,7 @@ export default function TransactionsPage() {
                     </th>
                     <th className="hidden sm:table-cell text-left p-2 sm:p-3 font-medium text-muted-foreground">Description</th>
                     <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground">Category</th>
+                    <th className="hidden sm:table-cell text-left p-2 sm:p-3 font-medium text-muted-foreground">Tags</th>
                     <th className="text-right p-2 sm:p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('amount')}>
                       <span className="flex items-center justify-end gap-1">Amt {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
                     </th>
@@ -311,6 +361,19 @@ export default function TransactionsPage() {
                       <td className="hidden sm:table-cell p-2 sm:p-3 font-medium">{t.description}</td>
                       <td className="p-2 sm:p-3">
                         <Badge variant="secondary" className="font-normal text-xs">{t.category}</Badge>
+                      </td>
+                      <td className="hidden sm:table-cell p-2 sm:p-3">
+                        <div className="flex flex-wrap gap-1">
+                          {t.tags && t.tags.length > 0 ? (
+                            t.tags.map((tag) => (
+                              <Badge key={tag} variant="outline" className="font-normal text-xs capitalize">
+                                {tag}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </div>
                       </td>
                       <td className={`p-2 sm:p-3 text-right font-semibold text-xs sm:text-sm ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
                         {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
@@ -425,6 +488,10 @@ export default function TransactionsPage() {
         transaction={selectedTxn}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onEdit={(txn) => {
+          setEditingTxn(txn);
+          setModalOpen(true);
+        }}
       />
 
       <TransactionModal
@@ -435,9 +502,28 @@ export default function TransactionsPage() {
 
       <AlertDialog open={bulkDeleteConfirmOpen} onOpenChange={setBulkDeleteConfirmOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Delete Selected Transactions</AlertDialogTitle>
+          <AlertDialogTitle>Delete {selectedIds.size} Transaction(s)?</AlertDialogTitle>
+          <div className="bg-muted/50 p-3 rounded-md mb-3 border border-muted text-sm space-y-2">
+            <p className="text-muted-foreground">Selected items:</p>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {paginationData.paginatedTransactions
+                .filter((t) => selectedIds.has(t.id))
+                .slice(0, 3)
+                .map((t) => (
+                  <div key={t.id} className="flex justify-between items-center text-xs">
+                    <span className="text-foreground font-medium truncate">{t.description}</span>
+                    <span className={`font-semibold whitespace-nowrap ml-2 ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+            {selectedIds.size > 3 && (
+              <p className="text-xs text-muted-foreground">...and {selectedIds.size - 3} more</p>
+            )}
+          </div>
           <AlertDialogDescription>
-            Are you sure you want to delete {selectedIds.size} transaction(s)? This action cannot be undone.
+            This action cannot be undone. All {selectedIds.size} transaction(s) will be permanently removed.
           </AlertDialogDescription>
           <div className="flex gap-2 justify-end">
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -445,7 +531,7 @@ export default function TransactionsPage() {
               onClick={handleBulkDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Delete All
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
@@ -453,9 +539,25 @@ export default function TransactionsPage() {
 
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+          <AlertDialogTitle>Delete Transaction?</AlertDialogTitle>
+          {txnToDelete && (
+            <div className="bg-muted/50 p-3 rounded-md mb-3 border border-muted text-sm">
+              <p className="text-muted-foreground mb-2">You're about to delete:</p>
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <p className="font-medium text-foreground">{txnToDelete.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(txnToDelete.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+                <p className={`font-semibold whitespace-nowrap ${txnToDelete.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                  {txnToDelete.type === 'income' ? '+' : '-'}{formatCurrency(txnToDelete.amount)}
+                </p>
+              </div>
+            </div>
+          )}
           <AlertDialogDescription>
-            Are you sure you want to delete this transaction? This action cannot be undone.
+            This action cannot be undone. The transaction will be permanently removed from your records.
           </AlertDialogDescription>
           <div className="flex gap-2 justify-end">
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -470,7 +572,7 @@ export default function TransactionsPage() {
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Delete Permanently
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

@@ -29,20 +29,35 @@ export interface Transaction {
   date: string;
   amount: number;
   category: string;
+  tags: string[];
   type: 'income' | 'expense';
   description: string;
+}
+
+export interface Budget {
+  id: string;
+  category: string;
+  limit: number;
+  spent: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Filters {
   searchTerm: string;
   categories: string[];
+  tags: string[];
   type: '' | 'income' | 'expense';
   sortBy: 'date' | 'amount';
   sortOrder: 'asc' | 'desc';
+  dateFrom: string;
+  dateTo: string;
 }
 
 interface FinanceState {
   transactions: Transaction[];
+  budgets: Budget[];
+  tags: string[];
   role: 'viewer' | 'admin';
   filters: Filters;
   darkMode: boolean;
@@ -52,6 +67,11 @@ interface FinanceState {
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
   updateTransaction: (id: string, t: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
+  addTag: (tag: string) => void;
+  removeTag: (tag: string) => void;
+  addBudget: (b: Omit<Budget, 'id' | 'spent' | 'createdAt' | 'updatedAt'>) => void;
+  updateBudget: (id: string, b: Partial<Budget>) => void;
+  deleteBudget: (id: string) => void;
   toggleDarkMode: () => void;
 }
 
@@ -62,6 +82,7 @@ function generateMockData(): Transaction[] {
   const transactions: Transaction[] = [];
   const incomeCategories = ['Salary', 'Freelance', 'Investment'];
   const expenseCategories = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Bills', 'Health'];
+  const tags = ['important', 'recurring', 'business', 'personal', 'urgent', 'review'];
 
   for (let i = 0; i < 50; i++) {
     const isIncome = Math.random() > 0.6;
@@ -69,6 +90,14 @@ function generateMockData(): Transaction[] {
     const date = new Date(now);
     date.setDate(date.getDate() - daysAgo);
     const cats = isIncome ? incomeCategories : expenseCategories;
+    
+    // Random 0-2 tags per transaction
+    const tagCount = Math.floor(Math.random() * 3);
+    const txnTags: string[] = [];
+    for (let t = 0; t < tagCount; t++) {
+      const tag = tags[Math.floor(Math.random() * tags.length)];
+      if (!txnTags.includes(tag)) txnTags.push(tag);
+    }
 
     transactions.push({
       id: `txn-${i + 1}`,
@@ -77,6 +106,7 @@ function generateMockData(): Transaction[] {
         ? Math.round((Math.random() * 5000 + 1000) * 100) / 100
         : Math.round((Math.random() * 500 + 10) * 100) / 100,
       category: cats[Math.floor(Math.random() * cats.length)],
+      tags: txnTags,
       type: isIncome ? 'income' : 'expense',
       description: isIncome
         ? `${cats[Math.floor(Math.random() * cats.length)]} payment`
@@ -90,15 +120,25 @@ function generateMockData(): Transaction[] {
 const defaultFilters: Filters = {
   searchTerm: '',
   categories: [],
+  tags: [],
   type: '',
   sortBy: 'date',
   sortOrder: 'desc',
+  dateFrom: '',
+  dateTo: '',
 };
 
 export const useFinanceStore = create<FinanceState>()(
   persist(
     (set) => ({
       transactions: generateMockData(),
+      tags: ['important', 'recurring', 'business', 'personal', 'urgent', 'review'],
+      budgets: [
+        { id: 'b1', category: 'Food', limit: 500, spent: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'b2', category: 'Transport', limit: 200, spent: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'b3', category: 'Entertainment', limit: 300, spent: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        { id: 'b4', category: 'Shopping', limit: 400, spent: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+      ],
       role: 'admin',
       filters: { ...defaultFilters },
       darkMode: initializeDarkMode(),
@@ -122,6 +162,38 @@ export const useFinanceStore = create<FinanceState>()(
         set((s) => ({
           transactions: s.transactions.filter((t) => t.id !== id),
         })),
+      addBudget: (b) =>
+        set((s) => ({
+          budgets: [
+            {
+              ...b,
+              id: `b-${Date.now()}`,
+              spent: 0,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            ...s.budgets,
+          ],
+        })),
+      updateBudget: (id, updates) =>
+        set((s) => ({
+          budgets: s.budgets.map((b) =>
+            b.id === id ? { ...b, ...updates, updatedAt: new Date().toISOString() } : b
+          ),
+        })),
+      deleteBudget: (id) =>
+        set((s) => ({
+          budgets: s.budgets.filter((b) => b.id !== id),
+        })),
+      addTag: (tag) =>
+        set((s) => {
+          if (s.tags.includes(tag)) return s;
+          return { tags: [...s.tags, tag] };
+        }),
+      removeTag: (tag) =>
+        set((s) => ({
+          tags: s.tags.filter((t) => t !== tag),
+        })),
       toggleDarkMode: () =>
         set((s) => {
           const next = !s.darkMode;
@@ -133,6 +205,8 @@ export const useFinanceStore = create<FinanceState>()(
       name: 'finance-dashboard',
       partialize: (state) => ({
         transactions: state.transactions,
+        budgets: state.budgets,
+        tags: state.tags,
         role: state.role,
         darkMode: state.darkMode,
       }),
@@ -160,6 +234,17 @@ export const useFilteredTransactions = () => {
   if (filters.type) {
     result = result.filter((t) => t.type === filters.type);
   }
+  if (filters.dateFrom) {
+    result = result.filter((t) => t.date >= filters.dateFrom);
+  }
+  if (filters.dateTo) {
+    result = result.filter((t) => t.date <= filters.dateTo);
+  }
+  if (filters.tags.length > 0) {
+    result = result.filter((t) =>
+      filters.tags.some((tag) => t.tags.includes(tag))
+    );
+  }
 
   result.sort((a, b) => {
     const mul = filters.sortOrder === 'asc' ? 1 : -1;
@@ -168,6 +253,27 @@ export const useFilteredTransactions = () => {
   });
 
   return result;
+};
+
+export const useBudgetWithSpending = () => {
+  const { transactions, budgets } = useFinanceStore();
+  
+  return budgets.map((budget) => {
+    const spent = transactions
+      .filter((t) => t.type === 'expense' && t.category === budget.category)
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const percentage = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
+    const status = percentage > 100 ? 'exceeded' : percentage > 80 ? 'warning' : 'on-track';
+    
+    return {
+      ...budget,
+      spent,
+      remaining: Math.max(0, budget.limit - spent),
+      percentage: Math.min(percentage, 100),
+      status,
+    };
+  });
 };
 
 export const useDerivedStats = () => {

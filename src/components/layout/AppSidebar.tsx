@@ -1,4 +1,4 @@
-import { LayoutDashboard, ArrowLeftRight, Lightbulb, X } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, Lightbulb, Target, X } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
 const navItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
   { title: 'Transactions', url: '/transactions', icon: ArrowLeftRight },
+  { title: 'Budgets', url: '/budgets', icon: Target },
   { title: 'Insights', url: '/insights', icon: Lightbulb },
 ];
 

@@ -1,8 +1,22 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, ShoppingBag, BarChart3, Hash, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, ShoppingBag, BarChart3, Hash, ArrowUpRight, ArrowDownRight, Lightbulb, AlertCircle, CheckCircle, Activity, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { useDerivedStats, useFinanceStore } from '@/store/useFinanceStore';
+import { generateObservations } from '@/lib/observations';
+import { analyzeTrends } from '@/lib/trendAnalysis';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
@@ -33,8 +47,18 @@ export default function InsightsPage() {
       ? transactions.reduce((s, t) => s + t.amount, 0) / transactions.length
       : 0;
 
-    return { topCategory, monthlyChange, categoryPercentages, avgTransaction };
-  }, [categoryBreakdown, monthlyArray, totalExpense, transactions]);
+    const observations = generateObservations({
+      totalIncome,
+      totalExpense,
+      categoryBreakdown,
+      monthlyArray,
+      transactionCount: transactions.length,
+    });
+
+    const trends = analyzeTrends(monthlyArray, categoryBreakdown, transactions);
+
+    return { topCategory, monthlyChange, categoryPercentages, avgTransaction, observations, trends };
+  }, [categoryBreakdown, monthlyArray, totalExpense, totalIncome, transactions]);
 
   const statCards = [
     {
@@ -94,6 +118,187 @@ export default function InsightsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Observations Section */}
+      {insights.observations.length > 0 && (
+        <Card>
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Smart Observations</h3>
+            </div>
+            <div className="space-y-3">
+              {insights.observations.map((obs, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-lg border flex gap-3 ${
+                    obs.type === 'positive'
+                      ? 'bg-income/5 border-income/30'
+                      : obs.type === 'warning'
+                      ? 'bg-expense/5 border-expense/30'
+                      : 'bg-muted/50 border-muted'
+                  }`}
+                >
+                  <div className="flex-shrink-0 mt-0.5">
+                    {obs.type === 'positive' && <CheckCircle className="h-4 w-4 text-income" />}
+                    {obs.type === 'warning' && <AlertCircle className="h-4 w-4 text-expense" />}
+                    {obs.type === 'neutral' && <Lightbulb className="h-4 w-4 text-primary" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium">{obs.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{obs.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Trend Overview Card */}
+      <Card>
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Spending Trends</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Trend</p>
+              <p className="text-sm font-semibold capitalize flex items-center gap-1">
+                {insights.trends.spendingTrend === 'increasing' ? (
+                  <TrendingUp className="h-4 w-4 text-expense" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-income" />
+                )}
+                {insights.trends.spendingTrend}
+              </p>
+              <p className={`text-xs mt-1 ${insights.trends.trendPercentage > 0 ? 'text-expense' : 'text-income'}`}>
+                {insights.trends.trendPercentage > 0 ? '+' : ''}{insights.trends.trendPercentage.toFixed(1)}%
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Volatility</p>
+              <Badge
+                variant={
+                  insights.trends.volatility === 'high' ? 'destructive' : insights.trends.volatility === 'medium' ? 'secondary' : 'default'
+                }
+                className="text-xs"
+              >
+                {insights.trends.volatility}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Peak Month</p>
+              <p className="text-sm font-semibold">{insights.trends.peakMonth?.label || 'N/A'}</p>
+              <p className="text-xs text-muted-foreground">{formatCurrency(insights.trends.peakMonth?.expense || 0)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Lowest Month</p>
+              <p className="text-sm font-semibold">{insights.trends.lowestMonth?.label || 'N/A'}</p>
+              <p className="text-xs text-muted-foreground">{formatCurrency(insights.trends.lowestMonth?.expense || 0)}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Spending Trend Chart */}
+      {monthlyArray.length > 1 && (
+        <Card>
+          <CardContent className="p-4 sm:p-5">
+            <h3 className="font-semibold mb-4">Spending History</h3>
+            <div className="w-full h-80 -mx-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyArray} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="expense"
+                    stroke="hsl(var(--destructive))"
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--destructive))', r: 4 }}
+                    name="Expenses"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                    name="Income"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Category Trends */}
+      {insights.trends.categoryTrends.length > 0 && (
+        <Card>
+          <CardContent className="p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Category Trends (Month-over-Month)</h3>
+            </div>
+            <div className="space-y-3">
+              {insights.trends.categoryTrends.slice(0, 5).map((cat) => (
+                <div key={cat.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{cat.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatCurrency(cat.previousSpending)} → {formatCurrency(cat.recentSpending)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {cat.trend === 'increasing' ? (
+                      <TrendingUp className="h-4 w-4 text-expense" />
+                    ) : cat.trend === 'decreasing' ? (
+                      <TrendingDown className="h-4 w-4 text-income" />
+                    ) : (
+                      <Activity className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className={`text-sm font-semibold ${cat.trendPercentage > 0 ? 'text-expense' : 'text-income'}`}>
+                      {cat.trendPercentage > 0 ? '+' : ''}{cat.trendPercentage.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quarterly Performance */}
+      {insights.trends.quarterlyData.length > 0 && (
+        <Card>
+          <CardContent className="p-4 sm:p-5">
+            <h3 className="font-semibold mb-4">Quarterly Performance</h3>
+            <div className="w-full h-80 -mx-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={insights.trends.quarterlyData} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="quarter" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value) => formatCurrency(Number(value))}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                  />
+                  <Bar dataKey="income" fill="hsl(var(--primary))" name="Income" />
+                  <Bar dataKey="expense" fill="hsl(var(--destructive))" name="Expenses" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="p-4 sm:p-5">
