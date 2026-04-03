@@ -50,7 +50,11 @@ export default function DashboardPage() {
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Dashboard</h1>
+<<<<<<< HEAD
         <p className="text-muted-foreground text-xs sm:text-sm">Your financial overview at a glance</p>
+=======
+        <p className="text-muted-foreground text-sm">Your financial overview at a glance</p>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -62,8 +66,13 @@ export default function DashboardPage() {
           >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
+<<<<<<< HEAD
                 <span className="text-xs sm:text-sm font-medium text-muted-foreground">{card.label}</span>
                 <div className={`h-8 sm:h-9 w-8 sm:w-9 rounded-lg flex items-center justify-center ${accentStyles[card.accent]}`}>
+=======
+                <span className="text-sm font-medium text-muted-foreground">{card.label}</span>
+                <div className={`h-8 w-8 sm:h-9 sm:w-9 rounded-lg flex items-center justify-center ${accentStyles[card.accent]}`}>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
                   <card.icon className="h-4 w-4" />
                 </div>
               </div>
@@ -87,15 +96,24 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">
           <Card>
+<<<<<<< HEAD
             <CardContent className="p-3 sm:p-5">
               <h3 className="text-sm sm:text-base font-semibold mb-4">Balance Trend</h3>
+=======
+            <CardContent className="p-4 sm:p-5">
+              <h3 className="font-semibold mb-4">Balance Trend</h3>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
               <BalanceChart data={monthlyArray} />
             </CardContent>
           </Card>
         </div>
         <Card>
           <CardContent className="p-4 sm:p-5">
+<<<<<<< HEAD
             <h3 className="text-sm sm:text-base font-semibold mb-4">Expense Breakdown</h3>
+=======
+            <h3 className="font-semibold mb-4">Expense Breakdown</h3>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
             <CategoryChart data={categoryBreakdown} />
           </CardContent>
         </Card>

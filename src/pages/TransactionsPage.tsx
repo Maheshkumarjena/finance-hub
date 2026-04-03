@@ -144,6 +144,7 @@ export default function TransactionsPage() {
   }, [transactions]);
 
   return (
+<<<<<<< HEAD
     <div className="space-y-4 animate-fade-in">
       <div className="flex flex-row items-center justify-between gap-3">
         <div>
@@ -157,12 +158,37 @@ export default function TransactionsPage() {
           {isAdmin ? (
             <Button size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={() => { setEditingTxn(null); setModalOpen(true); }}>
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
+=======
+    <div className="space-y-3 sm:space-y-4 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
+          <p className="text-muted-foreground text-sm">{transactions.length} transactions</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCSV}>
+            <FileDown className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+          {isAdmin ? (
+            <Button size="sm" onClick={() => { setEditingTxn(null); setModalOpen(true); }}>
+              <Plus className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Add Transaction</span>
+              <span className="sm:hidden">Add</span>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
             </Button>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
+<<<<<<< HEAD
                 <Button size="sm" disabled className="text-xs sm:text-sm h-8 sm:h-9">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
+=======
+                <Button size="sm" disabled>
+                  <Plus className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Add Transaction</span>
+                  <span className="sm:hidden">Add</span>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Switch to Admin to add transactions</TooltipContent>
@@ -186,6 +212,7 @@ export default function TransactionsPage() {
       )}
 
       {/* Filters */}
+<<<<<<< HEAD
       <div className="flex flex-wrap items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -195,6 +222,15 @@ export default function TransactionsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48" align="start">
+=======
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2">
+        <Select value={filters.category || 'all'} onValueChange={(v) => setFilters({ category: v === 'all' ? '' : v })}>
+          <SelectTrigger className="w-[130px] sm:w-[150px] h-9">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
             {CATEGORIES_LIST.map((c) => (
               <div key={c} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer" onClick={(e) => e.stopPropagation()}>
                 <Checkbox
@@ -258,6 +294,7 @@ export default function TransactionsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
+<<<<<<< HEAD
               <table className="w-full text-xs sm:text-sm table-auto">
                 <thead>
                   <tr className="border-b bg-muted/50">
@@ -281,6 +318,24 @@ export default function TransactionsPage() {
                       <span className="flex items-center justify-end gap-1">Amt {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
                     </th>
                     {isAdmin && <th className="p-2 sm:p-3" />}
+=======
+              <table className="w-full text-xs sm:text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('date')}>
+                      <span className="flex items-center gap-1">Date {filters.sortBy === 'date' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
+                    </th>
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground hidden sm:table-cell">Description</th>
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground">Category</th>
+                    <th className="text-right p-2 sm:p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('amount')}>
+                      <span className="flex items-center justify-end gap-1">
+                        <span className="hidden sm:inline">Amount</span>
+                        <span className="sm:hidden">Amt</span>
+                        {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}
+                      </span>
+                    </th>
+                    {isAdmin && <th className="p-2 sm:p-3 w-20" />}
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
                   </tr>
                 </thead>
                 <tbody>
@@ -297,6 +352,7 @@ export default function TransactionsPage() {
                         }
                       }}
                     >
+<<<<<<< HEAD
                       {isAdmin && (
                         <td className="p-2 sm:p-3 w-10" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-center">
@@ -350,6 +406,39 @@ export default function TransactionsPage() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+=======
+                      <td className="p-2 sm:p-3 text-muted-foreground">{new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                      <td className="p-2 sm:p-3 font-medium hidden sm:table-cell">{t.description}</td>
+                      <td className="p-2 sm:p-3">
+                        <Badge variant="secondary" className="font-normal">
+                          <span className="hidden sm:inline">{t.category}</span>
+                          <span className="sm:hidden">{t.category.slice(0, 3)}</span>
+                        </Badge>
+                      </td>
+                      <td className={`p-2 sm:p-3 text-right font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                        {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                      </td>
+                      {isAdmin && (
+                        <td className="p-2 sm:p-3">
+                          <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={(e) => { e.stopPropagation(); setEditingTxn(t); setModalOpen(true); }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-destructive"
+                              onClick={(e) => { e.stopPropagation(); deleteTransaction(t.id); toast.success('Transaction deleted', { description: `Category: ${t.category}` }); }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
                         </td>
                       )}
                     </tr>

@@ -47,15 +47,23 @@ export function AppSidebar() {
   }, [collapsed, toggleSidebar]);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="hidden md:flex">
       <SidebarContent>
         <div className={`px-4 sm:px-2 py-4 sm:py-5 flex items-center justify-between ${collapsed ? 'px-14 py-3 ' : ''}`}>
           <div className="flex items-center gap-2">
+<<<<<<< HEAD
             <div className={`h-7 sm:h-8 w-7 sm:w-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0 ${collapsed ? 'p-0 ' : ''}`}>
               <span className="text-sidebar-primary-foreground font-bold  text-xs sm:text-sm\">F</span>
             </div>
             {!collapsed && (
               <span className="text-sidebar-accent-foreground font-semibold text-base sm:text-lg tracking-tight\">
+=======
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
+              <span className="text-sidebar-primary-foreground font-bold text-xs sm:text-sm">F</span>
+            </div>
+            {!collapsed && (
+              <span className="text-sidebar-accent-foreground font-semibold text-base sm:text-lg tracking-tight">
+>>>>>>> 067612a1f07536c0111fce410abade02169fa000
                 FinDash
               </span>
             )}
