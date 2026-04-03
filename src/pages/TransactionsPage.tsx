@@ -69,25 +69,30 @@ export default function TransactionsPage() {
   }, [transactions]);
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3 sm:space-y-4 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
           <p className="text-muted-foreground text-sm">{transactions.length} transactions</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportCSV}>
-            <FileDown className="h-4 w-4 mr-1" /> Export
+            <FileDown className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Export</span>
           </Button>
           {isAdmin ? (
             <Button size="sm" onClick={() => { setEditingTxn(null); setModalOpen(true); }}>
-              <Plus className="h-4 w-4 mr-1" /> Add Transaction
+              <Plus className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Add Transaction</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button size="sm" disabled>
-                  <Plus className="h-4 w-4 mr-1" /> Add Transaction
+                  <Plus className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Add Transaction</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Switch to Admin to add transactions</TooltipContent>
@@ -97,9 +102,9 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2">
         <Select value={filters.category || 'all'} onValueChange={(v) => setFilters({ category: v === 'all' ? '' : v })}>
-          <SelectTrigger className="w-[150px] h-9">
+          <SelectTrigger className="w-[130px] sm:w-[150px] h-9">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -145,18 +150,22 @@ export default function TransactionsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50">
-                    <th className="text-left p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('date')}>
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('date')}>
                       <span className="flex items-center gap-1">Date {filters.sortBy === 'date' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
                     </th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Description</th>
-                    <th className="text-left p-3 font-medium text-muted-foreground">Category</th>
-                    <th className="text-right p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('amount')}>
-                      <span className="flex items-center justify-end gap-1">Amount {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}</span>
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground hidden sm:table-cell">Description</th>
+                    <th className="text-left p-2 sm:p-3 font-medium text-muted-foreground">Category</th>
+                    <th className="text-right p-2 sm:p-3 font-medium text-muted-foreground cursor-pointer hover:text-foreground" onClick={() => toggleSort('amount')}>
+                      <span className="flex items-center justify-end gap-1">
+                        <span className="hidden sm:inline">Amount</span>
+                        <span className="sm:hidden">Amt</span>
+                        {filters.sortBy === 'amount' ? (filters.sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3" />}
+                      </span>
                     </th>
-                    {isAdmin && <th className="p-3 w-20" />}
+                    {isAdmin && <th className="p-2 sm:p-3 w-20" />}
                   </tr>
                 </thead>
                 <tbody>
@@ -166,16 +175,19 @@ export default function TransactionsPage() {
                       className="border-b last:border-0 hover:bg-muted/30 cursor-pointer transition-colors group"
                       onClick={() => { setSelectedTxn(t); setDrawerOpen(true); }}
                     >
-                      <td className="p-3 text-muted-foreground">{new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                      <td className="p-3 font-medium">{t.description}</td>
-                      <td className="p-3">
-                        <Badge variant="secondary" className="font-normal">{t.category}</Badge>
+                      <td className="p-2 sm:p-3 text-muted-foreground">{new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                      <td className="p-2 sm:p-3 font-medium hidden sm:table-cell">{t.description}</td>
+                      <td className="p-2 sm:p-3">
+                        <Badge variant="secondary" className="font-normal">
+                          <span className="hidden sm:inline">{t.category}</span>
+                          <span className="sm:hidden">{t.category.slice(0, 3)}</span>
+                        </Badge>
                       </td>
-                      <td className={`p-3 text-right font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                      <td className={`p-2 sm:p-3 text-right font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
                         {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                       </td>
                       {isAdmin && (
-                        <td className="p-3">
+                        <td className="p-2 sm:p-3">
                           <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
                             <Button
                               variant="ghost"

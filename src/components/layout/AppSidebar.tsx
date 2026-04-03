@@ -22,15 +22,15 @@ export function AppSidebar() {
   const collapsed = state === 'collapsed';
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="hidden md:flex">
       <SidebarContent>
         <div className={`px-4 py-5 ${collapsed ? 'px-2' : ''}`}>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
-              <span className="text-sidebar-primary-foreground font-bold text-sm">F</span>
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
+              <span className="text-sidebar-primary-foreground font-bold text-xs sm:text-sm">F</span>
             </div>
             {!collapsed && (
-              <span className="text-sidebar-accent-foreground font-semibold text-lg tracking-tight">
+              <span className="text-sidebar-accent-foreground font-semibold text-base sm:text-lg tracking-tight">
                 FinDash
               </span>
             )}
