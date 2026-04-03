@@ -13,17 +13,14 @@ export default function InsightsPage() {
   const transactions = useFinanceStore((s) => s.transactions);
 
   const insights = useMemo(() => {
-    // Highest spending category
     const topCategory = Object.entries(categoryBreakdown).sort(([, a], [, b]) => b - a)[0];
 
-    // Monthly comparison
     const lastTwo = monthlyArray.slice(-2);
     let monthlyChange = 0;
     if (lastTwo.length === 2 && lastTwo[0].expense > 0) {
       monthlyChange = ((lastTwo[1].expense - lastTwo[0].expense) / lastTwo[0].expense) * 100;
     }
 
-    // Category percentages
     const categoryPercentages = Object.entries(categoryBreakdown)
       .map(([name, value]) => ({
         name,
@@ -75,18 +72,18 @@ export default function InsightsPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Insights</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Insights</h1>
         <p className="text-muted-foreground text-sm">Key financial metrics and analysis</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((card) => (
           <Card key={card.label}>
-            <CardContent className="p-5">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${card.bgColor}`}>
+                <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center ${card.bgColor}`}>
                   <card.icon className={`h-5 w-5 ${card.color}`} />
                 </div>
                 <span className="text-sm text-muted-foreground">{card.label}</span>
@@ -99,7 +96,7 @@ export default function InsightsPage() {
       </div>
 
       <Card>
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           <h3 className="font-semibold mb-4">Category Breakdown</h3>
           <div className="space-y-3">
             {insights.categoryPercentages.map((cat) => (
@@ -116,7 +113,7 @@ export default function InsightsPage() {
       </Card>
 
       <Card>
-        <CardContent className="p-5">
+        <CardContent className="p-4 sm:p-5">
           <h3 className="font-semibold mb-4">Monthly Summary</h3>
           <div className="space-y-3">
             {monthlyArray.map((m, i) => {
@@ -125,7 +122,7 @@ export default function InsightsPage() {
               return (
                 <div key={m.month} className="flex items-center justify-between py-2 border-b last:border-0">
                   <span className="font-medium text-sm">{m.label}</span>
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                     <span className="text-income">+{formatCurrency(m.income)}</span>
                     <span className="text-expense">-{formatCurrency(m.expense)}</span>
                     {i > 0 && (

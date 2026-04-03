@@ -1,5 +1,6 @@
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { useFinanceStore } from '@/store/useFinanceStore';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const COLORS = [
   'hsl(234, 89%, 60%)',
@@ -16,23 +17,24 @@ interface CategoryChartProps {
 
 export function CategoryChart({ data }: CategoryChartProps) {
   const setFilters = useFinanceStore((s) => s.setFilters);
+  const isMobile = useIsMobile();
   const chartData = Object.entries(data).map(([name, value]) => ({ name, value: Math.round(value) }));
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
   if (chartData.length === 0) {
-    return <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">No expenses yet</div>;
+    return <div className="h-40 sm:h-64 flex items-center justify-center text-muted-foreground text-xs sm:text-sm">No expenses yet</div>;
   }
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={220}>
+      <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
             cy="50%"
-            innerRadius={55}
-            outerRadius={85}
+            innerRadius={isMobile ? 45 : 55}
+            outerRadius={isMobile ? 70 : 85}
             dataKey="value"
             onClick={(entry) => setFilters({ category: entry.name, type: 'expense' })}
             className="cursor-pointer"
@@ -60,7 +62,6 @@ export function CategoryChart({ data }: CategoryChartProps) {
                   }}
                 >
                   <div style={{ color, fontWeight: 600 }}>{name}</div>
-                  
                   <div style={{ color }}>${value} ({pct}%)</div>
                 </div>
               );
