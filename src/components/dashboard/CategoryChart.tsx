@@ -17,7 +17,8 @@ interface CategoryChartProps {
 
 export function CategoryChart({ data }: CategoryChartProps) {
   const setFilters = useFinanceStore((s) => s.setFilters);
-  const isMobile = useIsMobile();
+  const darkMode = useFinanceStore((s) => s.darkMode);
+  const isMobileHook = useIsMobile();
   const chartData = Object.entries(data).map(([name, value]) => ({ name, value: Math.round(value) }));
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
@@ -30,6 +31,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
   const height = isMobile ? 180 : 220;
   const innerRadius = isMobile ? 45 : 55;
   const outerRadius = isMobile ? 70 : 85;
+  const borderStroke = darkMode ? '#1a1a1a' : '#ffffff';
 
   if (chartData.length === 0) {
     return <div className="h-40 sm:h-64 flex items-center justify-center text-muted-foreground text-xs sm:text-sm">No expenses yet</div>;
@@ -37,29 +39,25 @@ export function CategoryChart({ data }: CategoryChartProps) {
 
   return (
     <div>
-<<<<<<< HEAD
       <ResponsiveContainer width="100%" height={height}>
-=======
-      <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
         <PieChart>
           <Pie
             data={chartData}
             cx="50%"
             cy="50%"
-<<<<<<< HEAD
             innerRadius={innerRadius}
             outerRadius={outerRadius}
-=======
-            innerRadius={isMobile ? 45 : 55}
-            outerRadius={isMobile ? 70 : 85}
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
             dataKey="value"
             onClick={(entry) => setFilters({ categories: [entry.name], type: 'expense' })}
             className="cursor-pointer"
           >
             {chartData.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              <Cell 
+                key={index} 
+                fill={COLORS[index % COLORS.length]}
+                stroke={borderStroke}
+                strokeWidth={2}
+              />
             ))}
           </Pie>
           <Tooltip

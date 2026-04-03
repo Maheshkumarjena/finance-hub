@@ -75,26 +75,16 @@ export default function InsightsPage() {
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Insights</h1>
-<<<<<<< HEAD
         <p className="text-muted-foreground text-xs sm:text-sm">Key financial metrics and analysis</p>
-=======
-        <p className="text-muted-foreground text-sm">Key financial metrics and analysis</p>
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((card) => (
           <Card key={card.label}>
             <CardContent className="p-4 sm:p-5">
-<<<<<<< HEAD
               <div className="flex items-center gap-2 sm:gap-3 mb-3">
                 <div className={`h-9 sm:h-10 w-9 sm:w-10 rounded-lg flex items-center justify-center ${card.bgColor}`}>
                   <card.icon className={`h-4 sm:h-5 w-4 sm:w-5 ${card.color}`} />
-=======
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center ${card.bgColor}`}>
-                  <card.icon className={`h-5 w-5 ${card.color}`} />
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
                 </div>
                 <span className="text-xs sm:text-sm text-muted-foreground">{card.label}</span>
               </div>

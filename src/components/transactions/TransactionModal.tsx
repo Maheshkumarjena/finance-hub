@@ -78,11 +78,7 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-<<<<<<< HEAD
       <DialogContent className="max-w-sm">
-=======
-      <DialogContent className="max-w-sm sm:max-w-md">
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">{isEditing ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
         </DialogHeader>
@@ -95,11 +91,7 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 required
-<<<<<<< HEAD
                 className="text-xs sm:text-sm h-8 sm:h-9"
-=======
-                className="h-8 sm:h-9 text-xs sm:text-sm"
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
               />
             </div>
             <div>
@@ -111,11 +103,7 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 required
-<<<<<<< HEAD
                 className="text-xs sm:text-sm h-8 sm:h-9"
-=======
-                className="h-8 sm:h-9 text-xs sm:text-sm"
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
               />
             </div>
           </div>
@@ -127,11 +115,7 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               required
-<<<<<<< HEAD
               className="text-xs sm:text-sm h-8 sm:h-9"
-=======
-              className="h-8 sm:h-9 text-xs sm:text-sm"
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
             />
           </div>
 
@@ -160,13 +144,8 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-<<<<<<< HEAD
             <Button type="button" variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={onClose}>Cancel</Button>
             <Button type="submit" size="sm" className="text-xs sm:text-sm h-8 sm:h-9">{isEditing ? 'Save Changes' : 'Add Transaction'}</Button>
-=======
-            <Button type="button" variant="outline" onClick={onClose} className="h-8 sm:h-9 text-xs sm:text-sm">Cancel</Button>
-            <Button type="submit" className="h-8 sm:h-9 text-xs sm:text-sm">{isEditing ? 'Save Changes' : 'Add Transaction'}</Button>
->>>>>>> 067612a1f07536c0111fce410abade02169fa000
           </div>
         </form>
       </DialogContent>
