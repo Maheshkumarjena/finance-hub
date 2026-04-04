@@ -34,7 +34,7 @@ export default function BudgetPage() {
       updateBudget(editingId, { category, limit });
       setEditingId(null);
     } else {
-      addBudget({ category, limit, spent: 0 });
+      addBudget({ category, limit });
     }
   };
 
@@ -76,25 +76,30 @@ export default function BudgetPage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Budget Tracking</h1>
-          <p className="text-muted-foreground text-xs sm:text-sm">Set and manage spending budgets</p>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="animate-fade-in">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Budget Tracking</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">Set and manage spending budgets</p>
+          </div>
+          {isAdmin && (
+            <Button onClick={() => setModalOpen(true)} className="btn-interactive">
+              <Plus className="h-4 w-4 mr-2" /> Add Budget
+            </Button>
+          )}
         </div>
-        {isAdmin && (
-          <Button onClick={() => setModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Budget
-          </Button>
-        )}
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        {statCards.map((card) => (
-          <Card key={card.label}>
+        {statCards.map((card, index) => (
+          <Card 
+            key={card.label}
+            className={`card-hover ${['animate-fade-in-stagger-1', 'animate-fade-in-stagger-2', 'animate-fade-in-stagger-3', 'animate-fade-in-stagger-4'][index]}`}
+          >
             <CardContent className="p-3 sm:p-4">
-              <p className="text-2xl mb-1">{card.icon}</p>
+              <p className="text-2xl mb-1 transition-transform duration-300 hover:scale-110">{card.icon}</p>
               <p className="text-xs text-muted-foreground">{card.label}</p>
               <p className="text-lg sm:text-xl font-bold mt-1">{card.value}</p>
             </CardContent>
@@ -105,7 +110,7 @@ export default function BudgetPage() {
       {/* Budget Cards */}
       <div className="grid gap-3 sm:gap-4">
         {budgetsWithSpending.length === 0 ? (
-          <Card>
+          <Card className="animate-scale-in">
             <CardContent className="p-0">
               <EmptyState
                 icon={Target}
@@ -119,8 +124,12 @@ export default function BudgetPage() {
             </CardContent>
           </Card>
         ) : (
-          budgetsWithSpending.map((budget) => (
-            <Card key={budget.id}>
+          budgetsWithSpending.map((budget, idx) => (
+            <Card 
+              key={budget.id}
+              className="card-hover transition-all duration-300 animate-slide-up"
+              style={{ animationDelay: `${idx * 75}ms` }}
+            >
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -138,17 +147,17 @@ export default function BudgetPage() {
                           ? 'secondary'
                           : 'default'
                       }
-                      className="text-xs"
+                      className="text-xs transition-all duration-300"
                     >
-                      {budget.status === 'exceeded' && <AlertCircle className="h-3 w-3 mr-1" />}
-                      {budget.status === 'warning' && <AlertCircle className="h-3 w-3 mr-1" />}
+                      {budget.status === 'exceeded' && <AlertCircle className="h-3 w-3 mr-1 animate-pulse-subtle" />}
+                      {budget.status === 'warning' && <AlertCircle className="h-3 w-3 mr-1 animate-pulse-subtle" />}
                       {budget.status === 'on-track' && <CheckCircle className="h-3 w-3 mr-1" />}
                       {budget.status === 'on-track' ? 'On Track' : budget.status === 'warning' ? 'Warning' : 'Exceeded'}
                     </Badge>
                     {isAdmin && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 btn-interactive">
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </AlertDialogTrigger>
@@ -176,7 +185,7 @@ export default function BudgetPage() {
                 <div className="mb-2">
                   <Progress
                     value={budget.percentage}
-                    className={`h-2.5 ${
+                    className={`h-2.5 transition-all duration-500 ${
                       budget.status === 'exceeded'
                         ? 'bg-destructive/20'
                         : budget.status === 'warning'
@@ -200,12 +209,12 @@ export default function BudgetPage() {
 
                 {/* Warning Message */}
                 {budget.status === 'exceeded' && (
-                  <div className="mt-3 p-2 bg-destructive/10 rounded text-xs text-destructive">
+                  <div className="mt-3 p-2 bg-destructive/10 rounded text-xs text-destructive animate-slide-down">
                     You've exceeded your {budget.category} budget by {formatCurrency(Math.abs(budget.remaining))}!
                   </div>
                 )}
                 {budget.status === 'warning' && (
-                  <div className="mt-3 p-2 bg-yellow-500/10 rounded text-xs text-yellow-700 dark:text-yellow-600">
+                  <div className="mt-3 p-2 bg-yellow-500/10 rounded text-xs text-yellow-700 dark:text-yellow-600 animate-slide-down">
                     You're approaching your {budget.category} budget limit. {formatCurrency(budget.remaining)} remaining.
                   </div>
                 )}

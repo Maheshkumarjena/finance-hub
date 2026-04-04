@@ -40,3 +40,56 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Subtle animation utilities */
+@layer utilities {
+  /* Smooth transitions for interactive elements */
+  @supports (animation: slide-down 1s) {
+    .transition-smooth {
+      @apply transition-all duration-300 ease-out;
+    }
+
+    .hover-lift {
+      @apply transition-transform duration-300 ease-out;
+    }
+
+    .hover-lift:hover {
+      @apply -translate-y-1;
+    }
+
+    /* Card hover effect - subtle scale and shadow */
+    .card-hover {
+      @apply transition-all duration-300 ease-out;
+    }
+
+    .card-hover:hover {
+      @apply shadow-lg -translate-y-1;
+    }
+
+    /* Button interaction feedback */
+    .btn-interactive {
+      @apply transition-all duration-200 ease-out active:scale-95;
+    }
+
+    /* Icon rotation on hover */
+    .icon-rotate:hover {
+      @apply transition-transform duration-300 ease-out;
+      transform: rotate(6deg) scale(1.05);
+    }
+
+    /* Subtle scale effect */
+    .scale-hover {
+      @apply transition-transform duration-300 ease-out;
+    }
+
+    .scale-hover:hover {
+      @apply scale-105;
+    }
+
+    /* Focus state animations */
+    .focus-ring-animate {
+      @apply transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-offset-2;
+    }
+  }
+}
+

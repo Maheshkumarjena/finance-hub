@@ -148,40 +148,45 @@ export default function TransactionsPage() {
   }, [transactions]);
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex flex-row items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
-          <p className="text-muted-foreground text-xs sm:text-sm">{transactions.length} transactions</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <Button variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={exportCSV}>
-            <FileDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> <span className="hidden sm:inline">Export</span>
-          </Button>
-          {isAdmin ? (
-            <Button size="sm" className="text-xs sm:text-sm h-8 sm:h-9" onClick={() => { setEditingTxn(null); setModalOpen(true); }}>
-              <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
+    <div className="space-y-4">
+      <div>
+        <div className="flex flex-row items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Transactions</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">{transactions.length} transactions</p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm h-8 sm:h-9 btn-interactive" onClick={exportCSV}>
+              <FileDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> <span className="hidden sm:inline">Export</span>
             </Button>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" disabled className="text-xs sm:text-sm h-8 sm:h-9">
-                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Switch to Admin to add transactions</TooltipContent>
-            </Tooltip>
-          )}
+            {isAdmin ? (
+              <Button size="sm" className="text-xs sm:text-sm h-8 sm:h-9 btn-interactive" onClick={() => { setEditingTxn(null); setModalOpen(true); }}>
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="sm" disabled className="text-xs sm:text-sm h-8 sm:h-9">
+                    <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-0" /> Add
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Switch to Admin to add transactions</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Bulk Delete Bar */}
       {selectedIds.size > 0 && isAdmin && (
-        <div className="flex items-center justify-between gap-3 bg-destructive/10 border border-destructive/30 rounded-md p-3">
+        <div
+          className="flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 p-3 shadow-sm"
+          style={{ animationFillMode: 'both' }}
+        >
           <span className="text-sm font-medium text-destructive">{selectedIds.size} selected</span>
           <button
             onClick={() => setBulkDeleteConfirmOpen(true)}
-            className="inline-flex items-center gap-2 px-3 py-2 h-9 rounded-md bg-destructive text-destructive-foreground text-xs sm:text-sm font-medium hover:bg-destructive/90 transition-colors"
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-destructive px-3 py-2 text-xs font-medium text-destructive-foreground transition-all duration-200 hover:bg-destructive/90 active:scale-95 motion-safe:hover:-translate-y-px sm:text-sm"
           >
             <Trash2 className="h-4 w-4" />
             Delete Selected
@@ -190,75 +195,76 @@ export default function TransactionsPage() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm">
-              Categories {filters.categories.length > 0 && <span className="ml-0 font-semibold">({filters.categories.length})</span>}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48" align="start">
-            {CATEGORIES_LIST.map((c) => (
-              <div key={c} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                <Checkbox
-                  checked={filters.categories.includes(c)}
-                  onCheckedChange={() => {
-                    const newCategories = filters.categories.includes(c)
-                      ? filters.categories.filter(cat => cat !== c)
-                      : [...filters.categories, c];
-                    setFilters({ categories: newCategories });
-                  }}
-                />
-                <label className="text-xs sm:text-sm cursor-pointer flex-1">{c}</label>
-              </div>
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm btn-interactive">
+                Categories {filters.categories.length > 0 && <span className="ml-0 font-semibold">({filters.categories.length})</span>}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48" align="start">
+              {CATEGORIES_LIST.map((c) => (
+                <div key={c} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer transition-colors duration-200" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={filters.categories.includes(c)}
+                    onCheckedChange={() => {
+                      const newCategories = filters.categories.includes(c)
+                        ? filters.categories.filter(cat => cat !== c)
+                        : [...filters.categories, c];
+                      setFilters({ categories: newCategories });
+                    }}
+                  />
+                  <label className="text-xs sm:text-sm cursor-pointer flex-1">{c}</label>
+                </div>
+              ))}
+              {filters.categories.length > 0 && (
+                <>
+                  <div className="border-t my-1" />
+                  <DropdownMenuItem
+                    onClick={() => setFilters({ categories: [] })}
+                    className="text-xs sm:text-sm"
+                  >
+                    Clear Categories
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div className="flex gap-1 flex-wrap">
+            {(['', 'income', 'expense'] as const).map((t) => (
+              <Button
+                key={t || 'all'}
+                variant={filters.type === t ? 'default' : 'outline'}
+                size="sm"
+                className="h-8 sm:h-9 text-xs sm:text-sm btn-interactive transition-all duration-300"
+                onClick={() => setFilters({ type: t })}
+              >
+                {t === '' ? 'All' : t === 'income' ? 'Income' : 'Expenses'}
+              </Button>
             ))}
-            {filters.categories.length > 0 && (
-              <>
-                <div className="border-t my-1" />
-                <DropdownMenuItem
-                  onClick={() => setFilters({ categories: [] })}
-                  className="text-xs sm:text-sm"
-                >
-                  Clear Categories
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </div>
 
-        <div className="flex gap-1 flex-wrap">
-          {(['', 'income', 'expense'] as const).map((t) => (
-            <Button
-              key={t || 'all'}
-              variant={filters.type === t ? 'default' : 'outline'}
-              size="sm"
-              className="h-8 sm:h-9 text-xs sm:text-sm"
-              onClick={() => setFilters({ type: t })}
-            >
-              {t === '' ? 'All' : t === 'income' ? 'Income' : 'Expenses'}
-            </Button>
-          ))}
-        </div>
-
-        <DateRangePicker
-          dateFrom={filters.dateFrom}
-          dateTo={filters.dateTo}
-          onDateFromChange={(date) => setFilters({ dateFrom: date })}
-          onDateToChange={(date) => setFilters({ dateTo: date })}
-          onClear={() => setFilters({ dateFrom: '', dateTo: '' })}
-        />
+          <DateRangePicker
+            dateFrom={filters.dateFrom}
+            dateTo={filters.dateTo}
+            onDateFromChange={(date) => setFilters({ dateFrom: date })}
+            onDateToChange={(date) => setFilters({ dateTo: date })}
+            onClear={() => setFilters({ dateFrom: '', dateTo: '' })}
+          />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm">
+            <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm btn-interactive">
               Tags {filters.tags.length > 0 && <span className="ml-0 font-semibold">({filters.tags.length})</span>}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48" align="start">
             {useFinanceStore.getState().tags.map((tag) => (
-              <div key={tag} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer" onClick={(e) => e.stopPropagation()}>
+              <div key={tag} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer transition-colors duration-200" onClick={(e) => e.stopPropagation()}>
                 <Checkbox
                   checked={filters.tags.includes(tag)}
                   onCheckedChange={() => {
@@ -286,10 +292,11 @@ export default function TransactionsPage() {
         </DropdownMenu>
 
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" className="h-8 sm:h-9 text-xs text-muted-foreground" onClick={() => setFilters({ categories: [], type: '', dateFrom: '', dateTo: '', tags: [] })}>
+          <Button variant="ghost" size="sm" className="h-8 sm:h-9 text-xs text-muted-foreground btn-interactive transition-all duration-300 hover:text-foreground" onClick={() => setFilters({ categories: [], type: '', dateFrom: '', dateTo: '', tags: [] })}>
             <X className="h-3 w-3 mr-1" /> Clear filters
           </Button>
         )}
+        </div>
       </div>
 
       {/* Table */}
@@ -315,7 +322,6 @@ export default function TransactionsPage() {
                         <div className="flex items-center justify-center">
                           <Checkbox
                             checked={selectedIds.size > 0 && selectedIds.size === paginationData.paginatedTransactions.length}
-                            indeterminate={selectedIds.size > 0 && selectedIds.size < paginationData.paginatedTransactions.length}
                             onCheckedChange={toggleSelectAll}
                           />
                         </div>
@@ -334,10 +340,10 @@ export default function TransactionsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginationData.paginatedTransactions.map((t) => (
+                  {paginationData.paginatedTransactions.map((t, idx) => (
                     <tr
                       key={t.id}
-                      className={`border-b last:border-0 transition-colors group ${
+                      className={`border-b last:border-0 transition-all duration-300 group ${
                         selectedIds.has(t.id) ? 'bg-primary/10' : 'hover:bg-muted/30 cursor-pointer'
                       }`}
                       onClick={() => {
@@ -385,7 +391,7 @@ export default function TransactionsPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="h-6 w-6 p-0 opacity-0 transition-all duration-300 group-hover:opacity-100 motion-safe:translate-y-1 motion-safe:group-hover:translate-y-0 btn-interactive"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <MoreVertical className="h-4 w-4" />
@@ -434,11 +440,11 @@ export default function TransactionsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 sm:h-9 px-2 sm:px-3"
+              className="h-8 sm:h-9 px-2 sm:px-3 btn-interactive transition-all duration-300"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 hover:scale-110" />
             </Button>
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm text-muted-foreground">Page</span>
@@ -467,7 +473,7 @@ export default function TransactionsPage() {
                     }
                   }
                 }}
-                className="w-12 h-8 sm:h-9 text-center text-xs sm:text-sm [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [-moz-appearance:textfield]"
+                className="w-12 h-8 sm:h-9 text-center text-xs sm:text-sm transition-all duration-300 focus-ring-animate [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [-moz-appearance:textfield]"
               />
               <span className="text-xs sm:text-sm text-muted-foreground">of {paginationData.totalPages}</span>
             </div>

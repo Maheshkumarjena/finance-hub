@@ -96,18 +96,21 @@ export default function InsightsPage() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="animate-fade-in">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Insights</h1>
         <p className="text-muted-foreground text-xs sm:text-sm">Key financial metrics and analysis</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {statCards.map((card) => (
-          <Card key={card.label}>
+        {statCards.map((card, index) => (
+          <Card 
+            key={card.label}
+            className={`card-hover ${['animate-fade-in-stagger-1', 'animate-fade-in-stagger-2', 'animate-fade-in-stagger-3', 'animate-fade-in-stagger-4'][index]}`}
+          >
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                <div className={`h-9 sm:h-10 w-9 sm:w-10 rounded-lg flex items-center justify-center ${card.bgColor}`}>
+                <div className={`h-9 sm:h-10 w-9 sm:w-10 rounded-lg flex items-center justify-center transition-transform duration-300 hover:scale-110 ${card.bgColor}`}>
                   <card.icon className={`h-4 sm:h-5 w-4 sm:w-5 ${card.color}`} />
                 </div>
                 <span className="text-xs sm:text-sm text-muted-foreground">{card.label}</span>
@@ -121,27 +124,28 @@ export default function InsightsPage() {
 
       {/* Observations Section */}
       {insights.observations.length > 0 && (
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: '0.05s' }}>
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className="h-5 w-5 text-primary" />
+              <Lightbulb className="h-5 w-5 text-primary transition-transform duration-300 hover:scale-110 hover:rotate-6" />
               <h3 className="font-semibold">Smart Observations</h3>
             </div>
             <div className="space-y-3">
               {insights.observations.map((obs, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-lg border flex gap-3 ${
+                  className={`p-3 rounded-lg border flex gap-3 transition-all duration-300 animate-slide-up ${
                     obs.type === 'positive'
                       ? 'bg-income/5 border-income/30'
                       : obs.type === 'warning'
                       ? 'bg-expense/5 border-expense/30'
                       : 'bg-muted/50 border-muted'
                   }`}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className="flex-shrink-0 mt-0.5">
-                    {obs.type === 'positive' && <CheckCircle className="h-4 w-4 text-income" />}
-                    {obs.type === 'warning' && <AlertCircle className="h-4 w-4 text-expense" />}
+                  <div className="flex-shrink-0 mt-0.5 transition-transform duration-300">
+                    {obs.type === 'positive' && <CheckCircle className="h-4 w-4 text-income animate-scale-in" />}
+                    {obs.type === 'warning' && <AlertCircle className="h-4 w-4 text-expense animate-pulse-subtle" />}
                     {obs.type === 'neutral' && <Lightbulb className="h-4 w-4 text-primary" />}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -156,20 +160,20 @@ export default function InsightsPage() {
       )}
 
       {/* Trend Overview Card */}
-      <Card>
+      <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
         <CardContent className="p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-5 w-5 text-primary" />
+            <Activity className="h-5 w-5 text-primary transition-transform duration-300 hover:scale-110" />
             <h3 className="font-semibold">Spending Trends</h3>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-            <div>
+            <div className="transition-all duration-300 hover:scale-105">
               <p className="text-xs text-muted-foreground mb-1">Trend</p>
               <p className="text-sm font-semibold capitalize flex items-center gap-1">
                 {insights.trends.spendingTrend === 'increasing' ? (
-                  <TrendingUp className="h-4 w-4 text-expense" />
+                  <TrendingUp className="h-4 w-4 text-expense transition-transform duration-300 hover:scale-110" />
                 ) : (
-                  <TrendingDown className="h-4 w-4 text-income" />
+                  <TrendingDown className="h-4 w-4 text-income transition-transform duration-300 hover:scale-110" />
                 )}
                 {insights.trends.spendingTrend}
               </p>
@@ -177,23 +181,23 @@ export default function InsightsPage() {
                 {insights.trends.trendPercentage > 0 ? '+' : ''}{insights.trends.trendPercentage.toFixed(1)}%
               </p>
             </div>
-            <div>
+            <div className="transition-all duration-300 hover:scale-105">
               <p className="text-xs text-muted-foreground mb-1">Volatility</p>
               <Badge
                 variant={
                   insights.trends.volatility === 'high' ? 'destructive' : insights.trends.volatility === 'medium' ? 'secondary' : 'default'
                 }
-                className="text-xs"
+                className="text-xs transition-all duration-300"
               >
                 {insights.trends.volatility}
               </Badge>
             </div>
-            <div>
+            <div className="transition-all duration-300 hover:scale-105">
               <p className="text-xs text-muted-foreground mb-1">Peak Month</p>
               <p className="text-sm font-semibold">{insights.trends.peakMonth?.label || 'N/A'}</p>
               <p className="text-xs text-muted-foreground">{formatCurrency(insights.trends.peakMonth?.expense || 0)}</p>
             </div>
-            <div>
+            <div className="transition-all duration-300 hover:scale-105">
               <p className="text-xs text-muted-foreground mb-1">Lowest Month</p>
               <p className="text-sm font-semibold">{insights.trends.lowestMonth?.label || 'N/A'}</p>
               <p className="text-xs text-muted-foreground">{formatCurrency(insights.trends.lowestMonth?.expense || 0)}</p>
@@ -204,10 +208,10 @@ export default function InsightsPage() {
 
       {/* Spending Trend Chart */}
       {monthlyArray.length > 1 && (
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: '0.15s' }}>
           <CardContent className="p-4 sm:p-5">
             <h3 className="font-semibold mb-4">Spending History</h3>
-            <div className="w-full h-80 -mx-2">
+            <div className="w-full h-80 -mx-2 transition-all duration-300 hover:opacity-90">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyArray} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
@@ -242,15 +246,19 @@ export default function InsightsPage() {
 
       {/* Category Trends */}
       {insights.trends.categoryTrends.length > 0 && (
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Target className="h-5 w-5 text-primary" />
+              <Target className="h-5 w-5 text-primary transition-transform duration-300 hover:scale-110" />
               <h3 className="font-semibold">Category Trends (Month-over-Month)</h3>
             </div>
             <div className="space-y-3">
-              {insights.trends.categoryTrends.slice(0, 5).map((cat) => (
-                <div key={cat.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              {insights.trends.categoryTrends.slice(0, 5).map((cat, idx) => (
+                <div 
+                  key={cat.name}
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg transition-all duration-300 hover:bg-muted/70 animate-slide-up"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
                   <div className="flex-1">
                     <p className="text-sm font-medium">{cat.name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -259,11 +267,11 @@ export default function InsightsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {cat.trend === 'increasing' ? (
-                      <TrendingUp className="h-4 w-4 text-expense" />
+                      <TrendingUp className="h-4 w-4 text-expense transition-transform duration-300 hover:scale-110" />
                     ) : cat.trend === 'decreasing' ? (
-                      <TrendingDown className="h-4 w-4 text-income" />
+                      <TrendingDown className="h-4 w-4 text-income transition-transform duration-300 hover:scale-110" />
                     ) : (
-                      <Activity className="h-4 w-4 text-muted-foreground" />
+                      <Activity className="h-4 w-4 text-muted-foreground transition-transform duration-300 hover:scale-110" />
                     )}
                     <span className={`text-sm font-semibold ${cat.trendPercentage > 0 ? 'text-expense' : 'text-income'}`}>
                       {cat.trendPercentage > 0 ? '+' : ''}{cat.trendPercentage.toFixed(1)}%
@@ -278,10 +286,10 @@ export default function InsightsPage() {
 
       {/* Quarterly Performance */}
       {insights.trends.quarterlyData.length > 0 && (
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: '0.25s' }}>
           <CardContent className="p-4 sm:p-5">
             <h3 className="font-semibold mb-4">Quarterly Performance</h3>
-            <div className="w-full h-80 -mx-2">
+            <div className="w-full h-80 -mx-2 transition-all duration-300 hover:opacity-90">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={insights.trends.quarterlyData} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />

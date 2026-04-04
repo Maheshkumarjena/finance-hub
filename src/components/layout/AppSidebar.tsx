@@ -49,14 +49,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="hidden md:flex">
-      <SidebarContent>
+      <SidebarContent className="motion-safe:animate-fade-in">
         <div className={`px-4 sm:px-2 py-4 sm:py-5 flex items-center justify-between ${collapsed ? 'px-14 py-3 ' : ''}`}>
           <div className="flex items-center gap-2">
-            <div className={`h-7 sm:h-8 w-7 sm:w-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0 ${collapsed ? 'p-0 ' : ''}`}>
-              <span className="text-sidebar-primary-foreground font-bold  text-xs sm:text-sm\">F</span>
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary transition-transform duration-200 hover:scale-105 sm:h-8 sm:w-8 ${collapsed ? 'p-0 ' : ''}`}>
+              <span className="text-xs font-bold text-sidebar-primary-foreground sm:text-sm">F</span>
             </div>
             {!collapsed && (
-              <span className="text-sidebar-accent-foreground font-semibold text-base sm:text-lg tracking-tight\">
+              <span className="text-base font-semibold tracking-tight text-sidebar-accent-foreground motion-safe:animate-fade-in sm:text-lg">
                 FinDash
               </span>
             )}
@@ -80,12 +80,16 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === '/'}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      className="group/nav rounded-md transition-[background-color,color,transform,box-shadow] duration-200 hover:bg-sidebar-accent/50 motion-safe:hover:translate-x-1"
+                      activeClassName="bg-sidebar-accent font-medium text-sidebar-primary shadow-sm"
                       onClick={handleNavClick}
                     >
-                      <item.icon className="mr-2 h-4 w-4 shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className="mr-2 h-4 w-4 shrink-0 transition-transform duration-200 motion-safe:group-hover/nav:scale-110" />
+                      {!collapsed && (
+                        <span className="transition-transform duration-200 motion-safe:group-hover/nav:translate-x-0.5">
+                          {item.title}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
