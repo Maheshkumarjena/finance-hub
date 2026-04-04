@@ -1,7 +1,6 @@
 import { Search, Bell, Moon, Sun, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useFinanceStore } from '@/store/useFinanceStore';
 
@@ -12,7 +11,7 @@ import {
 } from '@/components/ui/tooltip';
 
 export function TopNavbar() {
-  const { role, setRole, filters, setFilters, darkMode, toggleDarkMode } =
+  const { filters, setFilters, darkMode, toggleDarkMode } =
     useFinanceStore();
 
   return (
@@ -31,21 +30,6 @@ export function TopNavbar() {
       </div>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        {/* Role toggle - hidden on mobile, visible on tablet and up */}
-        <div className="hidden sm:flex items-center gap-1 sm:gap-2">
-          <span className={`text-xs font-medium ${role === 'viewer' ? 'text-foreground' : 'text-muted-foreground'}`}>
-            View
-          </span>
-          <Switch
-            checked={role === 'admin'}
-            onCheckedChange={(checked) => setRole(checked ? 'admin' : 'viewer')}
-            className="scale-75 sm:scale-100"
-          />
-          <span className={`text-xs font-medium ${role === 'admin' ? 'text-foreground' : 'text-muted-foreground'}`}>
-            Admin
-          </span>
-        </div>
-
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

@@ -50,13 +50,13 @@
     --chart-4: 38 92% 55%;
     --chart-5: 280 60% 55%;
 
-    --sidebar-background: 230 25% 8%;
-    --sidebar-foreground: 225 15% 75%;
-    --sidebar-primary: 234 89% 65%;
+    --sidebar-background: 225 15% 95%;
+    --sidebar-foreground: 230 25% 25%;
+    --sidebar-primary: 234 89% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 230 20% 14%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 230 15% 18%;
+    --sidebar-accent: 225 15% 88%;
+    --sidebar-accent-foreground: 234 89% 50%;
+    --sidebar-border: 225 15% 88%;
     --sidebar-ring: 234 89% 60%;
   }
 

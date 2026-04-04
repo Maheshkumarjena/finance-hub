@@ -60,31 +60,37 @@ export default function DashboardPage() {
         <p className="text-muted-foreground text-xs sm:text-sm">Your financial overview at a glance</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-4">
         {cards.map((card) => (
           <Card
             key={card.label}
-            className="cursor-pointer hover:shadow-md transition-shadow"
+            className="min-w-0 cursor-pointer hover:shadow-md transition-shadow"
             onClick={card.onClick}
           >
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground">{card.label}</span>
-                <div className={`h-8 sm:h-9 w-8 sm:w-9 rounded-lg flex items-center justify-center ${accentStyles[card.accent]}`}>
-                  <card.icon className="h-4 w-4" />
+            <CardContent className="p-2 sm:p-5">
+              <div className="flex items-start justify-between gap-1 sm:mb-3">
+                <div className="min-w-0">
+                  <span className="block truncate text-[9px] leading-tight sm:text-sm font-medium text-muted-foreground">
+                    {card.label}
+                  </span>
+                  <div className="mt-1 truncate text-[11px] leading-tight sm:text-2xl font-bold tracking-tight">
+                    {formatCurrency(card.value)}
+                  </div>
+                </div>
+                <div className={`h-6 sm:h-9 w-6 sm:w-9 rounded-lg flex items-center justify-center flex-shrink-0 ${accentStyles[card.accent]}`}>
+                  <card.icon className="h-3 sm:h-4 w-3 sm:w-4" />
                 </div>
               </div>
-              <div className="text-lg sm:text-2xl font-bold">{formatCurrency(card.value)}</div>
-              <div className="flex items-center gap-1 mt-1 text-xs sm:text-sm">
+              <div className="flex items-center gap-0.5 sm:gap-1 mt-1 text-[8px] sm:text-sm whitespace-nowrap overflow-hidden">
                 {card.change > 0 ? (
-                  <ArrowUpRight className="h-3 w-3 text-income" />
+                  <ArrowUpRight className="h-2.5 sm:h-3 w-2.5 sm:w-3 text-income flex-shrink-0" />
                 ) : (
-                  <ArrowDownRight className="h-3 w-3 text-expense" />
+                  <ArrowDownRight className="h-2.5 sm:h-3 w-2.5 sm:w-3 text-expense flex-shrink-0" />
                 )}
-                <span className={`text-xs font-medium ${card.change > 0 ? 'text-income' : 'text-expense'}`}>
+                <span className={`text-[8px] sm:text-sm font-medium ${card.change > 0 ? 'text-income' : 'text-expense'}`}>
                   {Math.abs(card.change)}%
                 </span>
-                <span className="text-xs text-muted-foreground">vs last month</span>
+                <span className="text-[8px] sm:text-sm text-muted-foreground truncate">vs last month</span>
               </div>
             </CardContent>
           </Card>
