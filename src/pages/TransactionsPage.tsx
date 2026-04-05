@@ -43,6 +43,8 @@ import { TransactionDrawer } from '@/components/transactions/TransactionDrawer';
 import { TransactionModal } from '@/components/transactions/TransactionModal';
 import { DateRangePicker } from '@/components/DateRangePicker';
 import { EmptyState } from '@/components/EmptyState';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { PageErrorFallback } from '@/components/PageErrorFallback';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -50,7 +52,7 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 }
 
-export default function TransactionsPage() {
+function TransactionsPageContent() {
   const { role, filters, setFilters, deleteTransaction } = useFinanceStore();
   const transactions = useFilteredTransactions();
   const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
@@ -94,15 +96,26 @@ export default function TransactionsPage() {
   };
 
   const handleBulkDelete = () => {
-    selectedIds.forEach(id => {
-      const txn = transactions.find(t => t.id === id);
-      if (txn) {
-        deleteTransaction(id);
+    try {
+      let deletedCount = 0;
+      selectedIds.forEach(id => {
+        const txn = transactions.find(t => t.id === id);
+        if (txn) {
+          deleteTransaction(id);
+          deletedCount++;
+        }
+      });
+      if (deletedCount > 0) {
+        toast.success('Transactions deleted', { description: `${deletedCount} transaction(s) removed` });
+      } else {
+        toast.error('No transactions deleted', { description: 'An error occurred during deletion' });
       }
-    });
-    toast.success('Transactions deleted', { description: `${selectedIds.size} transaction(s) removed` });
-    setSelectedIds(new Set());
-    setBulkDeleteConfirmOpen(false);
+      setSelectedIds(new Set());
+      setBulkDeleteConfirmOpen(false);
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+      toast.error('Failed to delete transactions', { description: 'Please try again' });
+    }
   };
 
   // Reset to page 1 when filters change
@@ -134,17 +147,37 @@ export default function TransactionsPage() {
   }, [filters]);
 
   const exportCSV = useCallback(() => {
-    const headers = 'Date,Amount,Category,Type,Description\n';
-    const rows = transactions
-      .map((t) => `${t.date},${t.amount},${t.category},${t.type},${t.description}`)
-      .join('\n');
-    const blob = new Blob([headers + rows], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transactions.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      if (transactions.length === 0) {
+        toast.error('No data to export', { description: 'Add transactions before exporting' });
+        return;
+      }
+
+      const headers = 'Date,Amount,Category,Type,Description\n';
+      const rows = transactions
+        .map((t) => `${t.date},${t.amount},${t.category},${t.type},${t.description}`)
+        .join('\n');
+      
+      const blob = new Blob([headers + rows], { type: 'text/csv' });
+      if (blob.size === 0) {
+        toast.error('Export failed', { description: 'Unable to generate CSV file' });
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success('Export successful', { description: `${transactions.length} transaction(s) exported` });
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Export failed', { description: 'Unable to download CSV file' });
+    }
   }, [transactions]);
 
   return (
@@ -570,10 +603,16 @@ export default function TransactionsPage() {
             <AlertDialogAction
               onClick={() => {
                 if (txnToDelete) {
-                  deleteTransaction(txnToDelete.id);
-                  toast.success('Transaction deleted', { description: `Category: ${txnToDelete.category}` });
-                  setDeleteConfirmOpen(false);
-                  setTxnToDelete(null);
+                  try {
+                    deleteTransaction(txnToDelete.id);
+                    toast.success('Transaction deleted', { description: `Category: ${txnToDelete.category}` });
+                  } catch (error) {
+                    console.error('Error deleting transaction:', error);
+                    toast.error('Failed to delete', { description: 'Unable to delete transaction' });
+                  } finally {
+                    setDeleteConfirmOpen(false);
+                    setTxnToDelete(null);
+                  }
                 }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -584,5 +623,13 @@ export default function TransactionsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <ErrorBoundary fallback={<PageErrorFallback pageName="Transactions" />}>
+      <TransactionsPageContent />
+    </ErrorBoundary>
   );
 }

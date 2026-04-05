@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project specific files
+EVALUATION.md
+FORM_VALIDATION_SUMMARY.md

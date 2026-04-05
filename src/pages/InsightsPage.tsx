@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, ShoppingBag, BarChart3, Hash, ArrowUpRight, ArrowDownRight, Lightbulb, AlertCircle, CheckCircle, Activity, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, ShoppingBag, BarChart3, Hash, ArrowUpRight, ArrowDownRight, Lightbulb, AlertCircle, CheckCircle, Activity, Target, Brain } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useDerivedStats, useFinanceStore } from '@/store/useFinanceStore';
 import { generateObservations } from '@/lib/observations';
 import { analyzeTrends } from '@/lib/trendAnalysis';
+import { EmptyState } from '@/components/EmptyState';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { PageErrorFallback } from '@/components/PageErrorFallback';
 import {
   LineChart,
   Line,
@@ -22,7 +25,7 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 }
 
-export default function InsightsPage() {
+function InsightsPageContent() {
   const { totalIncome, totalExpense, categoryBreakdown, monthlyArray } = useDerivedStats();
   const transactions = useFinanceStore((s) => s.transactions);
 
@@ -102,6 +105,18 @@ export default function InsightsPage() {
         <p className="text-muted-foreground text-xs sm:text-sm">Key financial metrics and analysis</p>
       </div>
 
+      {transactions.length === 0 ? (
+        <EmptyState
+          icon={Brain}
+          title="No insights yet"
+          description="Add transactions to see spending analysis, trends, and personalized financial insights"
+          action={{
+            label: "Go to Transactions",
+            onClick: () => window.location.href = '/transactions'
+          }}
+        />
+      ) : (
+        <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((card, index) => (
           <Card 
@@ -351,6 +366,16 @@ export default function InsightsPage() {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
+  );
+}
+
+export default function InsightsPage() {
+  return (
+    <ErrorBoundary fallback={<PageErrorFallback pageName="Insights" />}>
+      <InsightsPageContent />
+    </ErrorBoundary>
   );
 }

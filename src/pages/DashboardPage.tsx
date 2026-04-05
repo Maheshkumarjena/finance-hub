@@ -7,12 +7,14 @@ import { useDerivedStats, useFinanceStore, useBudgetWithSpending } from '@/store
 import { BalanceChart } from '@/components/dashboard/BalanceChart';
 import { CategoryChart } from '@/components/dashboard/CategoryChart';
 import { useNavigate } from 'react-router-dom';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { PageErrorFallback } from '@/components/PageErrorFallback';
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const { totalBalance, totalIncome, totalExpense, categoryBreakdown, monthlyArray } = useDerivedStats();
   const setFilters = useFinanceStore((s) => s.setFilters);
   const budgetsWithSpending = useBudgetWithSpending();
@@ -145,5 +147,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ErrorBoundary fallback={<PageErrorFallback pageName="Dashboard" />}>
+      <DashboardPageContent />
+    </ErrorBoundary>
   );
 }

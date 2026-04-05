@@ -33,6 +33,9 @@ interface FormErrors {
   limit?: string;
 }
 
+const MAX_BUDGET_LIMIT = 1000000; // $1M max
+const MIN_BUDGET_LIMIT = 0.01; // $0.01 min
+
 export function BudgetModal({
   open,
   onOpenChange,
@@ -50,16 +53,37 @@ export function BudgetModal({
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
 
-    if (!category) {
-      newErrors.category = 'Select a category';
+    // Category validation
+    if (!category || category.trim() === '') {
+      newErrors.category = 'Please select a category';
     }
 
-    const limitNum = parseFloat(limit);
-    if (!limit || isNaN(limitNum) || limitNum <= 0) {
-      newErrors.limit = 'Enter an amount greater than $0';
+    // Limit validation
+    if (!limit || limit.trim() === '') {
+      newErrors.limit = 'Budget limit is required';
+    } else {
+      const limitNum = parseFloat(limit);
+      if (isNaN(limitNum)) {
+        newErrors.limit = 'Please enter a valid number';
+      } else if (limitNum < MIN_BUDGET_LIMIT) {
+        newErrors.limit = `Budget must be at least $${MIN_BUDGET_LIMIT.toFixed(2)}`;
+      } else if (limitNum > MAX_BUDGET_LIMIT) {
+        newErrors.limit = `Budget cannot exceed $${MAX_BUDGET_LIMIT.toLocaleString()}`;
+      }
     }
 
     return newErrors;
+  };
+
+  const handleChange = (field: string, value: string) => {
+    if (field === 'category') setCategory(value);
+    if (field === 'limit') setLimit(value);
+    
+    // Real-time validation if field has been touched
+    if (touched.has(field)) {
+      const newErrors = validateForm();
+      setErrors(newErrors);
+    }
   };
 
   const handleBlur = (field: string) => {
@@ -79,12 +103,21 @@ export function BudgetModal({
 
     setIsSubmitting(true);
     try {
-      onSave(category, parseFloat(limit));
+      const limitAmount = parseFloat(limit);
+      if (isNaN(limitAmount) || limitAmount <= 0) {
+        throw new Error('Invalid budget amount');
+      }
+      
+      onSave(category, limitAmount);
       setCategory('');
       setLimit('');
       setErrors({});
       setTouched(new Set());
       onOpenChange(false);
+    } catch (error) {
+      console.error('Failed to save budget:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save budget';
+      setErrors({ limit: `${errorMessage}. Please try again.` });
     } finally {
       setIsSubmitting(false);
     }
@@ -103,9 +136,19 @@ export function BudgetModal({
         <div className="space-y-4 py-4">
           {/* Category Select */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className={hasCategoryError ? 'border-red-500 focus:ring-red-500' : ''}>
+            <label className="text-sm font-medium text-foreground">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <Select value={category} onValueChange={(v) => handleChange('category', v)}>
+              <SelectTrigger 
+                className={`transition-colors ${
+                  hasCategoryError 
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50 dark:bg-red-950/20' 
+                    : touched.has('category') 
+                    ? 'border-green-500 focus:ring-green-500'
+                    : ''
+                }`}
+              >
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -116,37 +159,59 @@ export function BudgetModal({
                 ))}
               </SelectContent>
             </Select>
-            {hasCategoryError && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <AlertCircle className="h-3 w-3" />
-                {errors.category}
+            {hasCategoryError ? (
+              <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-2.5 py-1.5 rounded">
+                <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>{errors.category}</span>
               </div>
-            )}
+            ) : touched.has('category') ? (
+              <div className="text-xs text-green-600 dark:text-green-400">✓ Valid selection</div>
+            ) : null}
           </div>
 
           {/* Limit Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Monthly Budget Limit</label>
+            <label className="text-sm font-medium text-foreground">
+              Monthly Budget Limit <span className="text-red-500">*</span>
+            </label>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">$</span>
+              <span className={`text-sm font-medium transition-colors ${
+                hasLimitError 
+                  ? 'text-red-500' 
+                  : touched.has('limit') 
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-muted-foreground'
+              }`}>
+                $
+              </span>
               <Input
                 type="number"
                 placeholder="0.00"
                 value={limit}
-                onChange={(e) => setLimit(e.target.value)}
+                onChange={(e) => handleChange('limit', e.target.value)}
                 onBlur={() => handleBlur('limit')}
                 min="0"
                 step="0.01"
-                className={`flex-1 ${hasLimitError ? 'border-red-500 focus:ring-red-500' : ''}`}
+                max={MAX_BUDGET_LIMIT}
+                disabled={isSubmitting}
+                className={`flex-1 transition-colors ${
+                  hasLimitError 
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50 dark:bg-red-950/20' 
+                    : touched.has('limit') 
+                    ? 'border-green-500 focus:ring-green-500'
+                    : ''
+                }`}
               />
             </div>
-            {hasLimitError && (
-              <div className="flex items-center gap-1 text-xs text-red-500">
-                <AlertCircle className="h-3 w-3" />
-                {errors.limit}
+            {hasLimitError ? (
+              <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-2.5 py-1.5 rounded">
+                <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>{errors.limit}</span>
               </div>
-            )}
-            <p className="text-xs text-muted-foreground">We'll alert you when spending approaches this limit</p>
+            ) : touched.has('limit') ? (
+              <div className="text-xs text-green-600 dark:text-green-400">✓ Valid amount</div>
+            ) : null}
+            <p className="text-xs text-muted-foreground">We'll alert you when spending approaches 80% of this limit</p>
           </div>
         </div>
         <DialogFooter>

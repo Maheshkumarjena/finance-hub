@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Plus, Trash2, AlertCircle, CheckCircle, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { useFinanceStore, useBudgetWithSpending } from '@/store/useFinanceStore';
 import { BudgetModal } from '@/components/BudgetModal';
 import { EmptyState } from '@/components/EmptyState';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { PageErrorFallback } from '@/components/PageErrorFallback';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +24,7 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
 }
 
-export default function BudgetPage() {
+function BudgetPageContent() {
   const { addBudget, deleteBudget, updateBudget, role } = useFinanceStore();
   const budgetsWithSpending = useBudgetWithSpending();
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,11 +33,23 @@ export default function BudgetPage() {
   const isAdmin = role === 'admin';
 
   const onSaveBudget = (category: string, limit: number) => {
-    if (editingId) {
-      updateBudget(editingId, { category, limit });
-      setEditingId(null);
-    } else {
-      addBudget({ category, limit });
+    try {
+      if (!category || limit <= 0) {
+        throw new Error('Invalid budget data');
+      }
+      
+      if (editingId) {
+        updateBudget(editingId, { category, limit });
+        toast.success('Budget updated', { description: `${category}: $${limit.toFixed(2)}` });
+        setEditingId(null);
+      } else {
+        addBudget({ category, limit });
+        toast.success('Budget created', { description: `${category}: $${limit.toFixed(2)}` });
+      }
+    } catch (error) {
+      console.error('Error saving budget:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save budget';
+      toast.error('Failed to save budget', { description: errorMessage });
     }
   };
 
@@ -170,7 +185,15 @@ export default function BudgetPage() {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               className="bg-destructive"
-                              onClick={() => deleteBudget(budget.id)}
+                              onClick={() => {
+                                try {
+                                  deleteBudget(budget.id);
+                                  toast.success('Budget deleted', { description: `${budget.category} budget removed` });
+                                } catch (error) {
+                                  console.error('Error deleting budget:', error);
+                                  toast.error('Failed to delete budget', { description: 'Please try again' });
+                                }
+                              }}
                             >
                               Delete
                             </AlertDialogAction>
@@ -231,5 +254,13 @@ export default function BudgetPage() {
         title={editingId ? 'Edit Budget' : 'Add Budget'}
       />
     </div>
+  );
+}
+
+export default function BudgetPage() {
+  return (
+    <ErrorBoundary fallback={<PageErrorFallback pageName="Budgets" />}>
+      <BudgetPageContent />
+    </ErrorBoundary>
   );
 }
