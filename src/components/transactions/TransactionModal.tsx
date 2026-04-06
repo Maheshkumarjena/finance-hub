@@ -238,7 +238,7 @@ export function TransactionModal({ transaction, open, onClose }: Props) {
                 Amount <span className="text-red-500">*</span>
               </Label>
               <div className="relative mt-1.5 flex items-center">
-                <span className={`text-xs sm:text-sm font-medium transition-colors pl-2 ${
+                <span className={`text-xs sm:text-sm font-medium transition-colors p-2 ${
                   hasAmountError 
                     ? 'text-red-500' 
                     : touched.has('amount') 

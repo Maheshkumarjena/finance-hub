@@ -53,7 +53,7 @@ function formatCurrency(n: number) {
 }
 
 function TransactionsPageContent() {
-  const { role, filters, setFilters, deleteTransaction } = useFinanceStore();
+  const { role, filters, setFilters, deleteTransaction, tags } = useFinanceStore();
   const transactions = useFilteredTransactions();
   const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -296,7 +296,7 @@ function TransactionsPageContent() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48" align="start">
-            {useFinanceStore.getState().tags.map((tag) => (
+            {tags.map((tag) => (
               <div key={tag} className="flex items-center gap-2 px-3 py-2 hover:bg-accent cursor-pointer transition-colors duration-200" onClick={(e) => e.stopPropagation()}>
                 <Checkbox
                   checked={filters.tags.includes(tag)}
